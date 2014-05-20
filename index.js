@@ -15,8 +15,9 @@ module.exports = function (routeTable, app) {
     });
 };
 
-function addRoute(route, app) {
+function addRoute(route, app, parentPattern) {
     if (_.isUndefined(route.method)) route.method = 'get';
+    parentPattern = parentPattern || '';
 
     if (!route.pattern) {
         throw new Error('express adapter addRoute(): route.pattern required!', route);
@@ -25,16 +26,19 @@ function addRoute(route, app) {
         throw new Error('express adapter addRoute(): route.handler required!', route);
     }
 
-    var handlers = [];
-
-    if (_.isArray(route.handlers)) {
-        handlers = route.handlers;
-    }
     if (_.isFunction(route.handlers)) {
-        handlers.push(route.handlers);
+        route.handlers = [route.handlers];
     }
-    var routeArg = [route.pattern].concat(handlers);
 
-    app[route.method].apply(app, routeArg);
+    route.pattern = parentPattern + route.pattern;
+    app[route.method].apply(app,[route.pattern].concat(route.handlers));
+    parentPattern = route.pattern;
+
+    if (_.isArray(route.routes)) {
+        _.each(route.routes, function (route) {
+            addRoute(route, app, parentPattern);
+        });
+    }
 }
+
 
