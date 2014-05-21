@@ -1,6 +1,6 @@
 {
   "name": "isomorpha-expressjs-adapter",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Convert routing table in express.js routes",
   "main": "index.js",
   "scripts": {
